@@ -42,6 +42,26 @@ famd_test <- function (data, ndims) {
 }
 
 
+pcamix_test <- function(data, ndims) {
+  split_data <- PCAmixdata::splitmix(data)
+
+  result <- PCAmixdata::PCAmix(
+    X.quanti = split_data$X.quanti,
+    X.quali = split_data$X.quali,
+    ndim = ndims,
+    rename.level = TRUE,
+    weight.col.quanti = NULL,
+    weight.col.quali = NULL,
+    graph = FALSE
+  )
+
+  eig <- result$eig
+  row.names(eig) <- seq_len(nrow(eig))
+
+  return(eig)
+}
+
+
 caravan <- ISLR::Caravan
 caravan$MOSTYPE <- factor(caravan$MOSTYPE)
 caravan$MOSHOOFD <- factor(caravan$MOSHOOFD)
@@ -61,3 +81,11 @@ print(ade4_eig)
 famd_eig <- famd_test(data = data, ndims = n_dims)
 print("FAMD")
 print(famd_eig)
+
+pcamix_eig <- pcamix_test(data = data, ndims = n_dims)
+print("PCAmix")
+print(pcamix_eig)
+
+# TODO: PCA with on-hot encoding
+
+# TODO: PCoA with gower distances
