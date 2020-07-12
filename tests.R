@@ -22,6 +22,26 @@ ade4_test <- function (data, ndims) {
 }
 
 
+famd_test <- function (data, ndims) {
+  result <- FactoMineR::FAMD(
+    base = data,
+    ncp = ndims,
+    graph = FALSE,
+    sup.var = NULL,
+    ind.sup = NULL,
+    axes = c(1,2),
+    row.w = NULL,
+    tab.disj = NULL
+  )
+
+  eig <- result$eig
+  colnames(eig)[1:3] <- c("Eigenvalue", "Proportion", "Cumulative")
+  row.names(eig) <- seq_len(nrow(eig))
+
+  return(eig)
+}
+
+
 caravan <- ISLR::Caravan
 caravan$MOSTYPE <- factor(caravan$MOSTYPE)
 caravan$MOSHOOFD <- factor(caravan$MOSHOOFD)
@@ -37,3 +57,7 @@ n_dims <- Inf
 ade4_eig <- ade4_test(data = data, ndims = n_dims)
 print("ade4")
 print(ade4_eig)
+
+famd_eig <- famd_test(data = data, ndims = n_dims)
+print("FAMD")
+print(famd_eig)
