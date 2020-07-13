@@ -11,12 +11,11 @@ ade4_test <- function (data, ndims) {
     nf = ndims
   )
 
-  Eigenvalue <- result$eig
-  eig <- data.frame(Eigenvalue)
+  eig <- matrix(result$eig, dimnames = list(seq_len(length(result$eig)), "Eigenvalue"))
 
-  total_variance <- sum(result$eig)
-  eig$Proportion <- eig$Eigenvalue * 100 / total_variance
-  eig$Cumulative <- cumsum(eig$Proportion)
+  total_variance <- sum(eig)
+  eig <- cbind(eig, Proportion = eig[, "Eigenvalue"] * 100 / total_variance)
+  eig <- cbind(eig, Cumulative = cumsum(eig[, "Proportion"]))
 
   return(eig)
 }
@@ -85,6 +84,9 @@ print(famd_eig)
 pcamix_eig <- pcamix_test(data = data, ndims = n_dims)
 print("PCAmix")
 print(pcamix_eig)
+
+print("Are ade4 and PCAmix equivalent?")
+all.equal(ade4_eig, pcamix_eig)
 
 # TODO: PCA with on-hot encoding
 
