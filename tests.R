@@ -3,6 +3,10 @@
 # Created by: Alessandro Serpi - 1647244
 # Created on: 2020-07-01
 
+
+is.notfactor <- function (x) { ! is.factor(x) }
+
+
 ade4_test <- function (data, ndims) {
   result <- ade4::dudi.hillsmith(
     df = data,
@@ -71,6 +75,8 @@ wine <- read.csv("datasets/winequality-red.csv", sep=";")
 wine$quality <- factor(wine$quality, levels = 1:10)
 
 data <- caravan
+num_col <- unlist(lapply(data, is.notfactor))
+data[num_col] <- unlist(lapply(data[num_col], scale))
 n_dims <- Inf
 
 ade4_eig <- ade4_test(data = data, ndims = n_dims)
