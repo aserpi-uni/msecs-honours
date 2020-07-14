@@ -45,6 +45,20 @@ famd_test <- function (data, ndims) {
 }
 
 
+pca_one_hot_test <- function(data, ndims) {
+  one_hot_data <- mltools::one_hot(data.table::data.table(data))
+  result <- prcomp(one_hot_data)
+
+  eig <- matrix(result$sdev, dimnames = list(seq_len(length(result$sdev)), "Eigenvalue"))
+
+  total_variance <- sum(eig)
+  eig <- cbind(eig, Proportion = eig[, "Eigenvalue"] * 100 / total_variance)
+  eig <- cbind(eig, Cumulative = cumsum(eig[, "Proportion"]))
+
+  return(eig)
+}
+
+
 pcamix_test <- function(data, ndims) {
   split_data <- PCAmixdata::splitmix(data)
 
@@ -72,7 +86,7 @@ caravan$MGODRK <- factor(caravan$MGODRK)
 caravan$PWAPART <- factor(caravan$PWAPART)
 
 wine <- read.csv("datasets/winequality-red.csv", sep=";")
-wine$quality <- factor(wine$quality, levels = 1:10)
+wine$quality <- factor(wine$quality)
 
 data <- caravan
 num_col <- unlist(lapply(data, is.notfactor))
@@ -91,9 +105,11 @@ pcamix_eig <- pcamix_test(data = data, ndims = n_dims)
 print("PCAmix")
 print(pcamix_eig)
 
+pca_one_hot_eig <- pca_one_hot_test(data = data, ndims = n_dims)
+print("PCA with one-hot encoding")
+print(pca_one_hot_eig)
+
 print("Are ade4 and PCAmix equivalent?")
 all.equal(ade4_eig, pcamix_eig)
-
-# TODO: PCA with on-hot encoding
 
 # TODO: PCoA with gower distances
