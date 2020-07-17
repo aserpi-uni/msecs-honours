@@ -3,6 +3,9 @@
 # Created by: Alessandro Serpi - 1647244
 # Created on: 2020-07-01
 
+source("mixed_datasets.R")
+data <- caravan()
+
 
 is.notfactor <- function (x) { ! is.factor(x) }
 
@@ -79,16 +82,6 @@ pcamix_test <- function(data, ndims) {
 }
 
 
-caravan <- ISLR::Caravan
-caravan$MOSTYPE <- factor(caravan$MOSTYPE)
-caravan$MOSHOOFD <- factor(caravan$MOSHOOFD)
-caravan$MGODRK <- factor(caravan$MGODRK)
-caravan$PWAPART <- factor(caravan$PWAPART)
-
-wine <- read.csv("datasets/winequality-red.csv", sep=";")
-wine$quality <- factor(wine$quality)
-
-data <- caravan
 num_col <- unlist(lapply(data, is.notfactor))
 data[num_col] <- unlist(lapply(data[num_col], scale))
 n_dims <- Inf
