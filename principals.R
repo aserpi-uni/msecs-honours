@@ -19,5 +19,11 @@ principals <- function (X, r = Inf) {
 
   X_star <- standardise(X)
 
+  # Model parameter estimation
+  eigens <- eigen((t(X_star) %*% X_star) / nrow(X_star), only.values = F)
+  A <- head(eigens$vectors, cbind(nrow(eigens$vectors), min(r, ncol(eigens$vectors))))
+  D <- head(eigens$values, min(r, length(eigens$values)))
+  Z <- X_star %*% A
+
   # TODO
 }
