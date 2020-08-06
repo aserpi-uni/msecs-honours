@@ -25,5 +25,16 @@ principals <- function (X, r = Inf) {
   D <- head(eigens$values, min(r, length(eigens$values)))
   Z <- X_star %*% A
 
-  # TODO
+  # Optimal scaling
+  X_hat <- Z %*% t(A)
+  X_new_res <- optim(
+    matrix(rep(1, nrow(X_hat) * ncol(X_hat)), nrow = nrow(X_hat), ncol = ncol(X_hat)),
+    function (X_new) { sum(diag(t(X_new - X_hat)) %*% (X_new - X_hat)) },
+    method = "BFGS"
+  )
+  if (X_new_res$convergence != 0) {
+    return(NULL)
+  }
+
+  return(list("X_star" = standardise(X_new_res$par), "eig" = D))
 }
