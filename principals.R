@@ -25,6 +25,9 @@ principals <- function (X, r = Inf) {
   D <- head(eigens$values, min(r, length(eigens$values)))
   Z <- X_star %*% A
 
+  stopifnot(abs(t(A) %*% A - diag(1, nrow = ncol(A), ncol = ncol(A))) <= 1e-15)
+  stopifnot(abs(((t(X_star) %*% X_star) / nrow(X_star)) %*% A - A %*% diag(D)) <= 1e-15)
+
   # Optimal scaling
   X_hat <- Z %*% t(A)
   X_new_res <- optim(
