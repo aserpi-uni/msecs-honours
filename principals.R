@@ -7,8 +7,8 @@ standardise <- function (X) {
   X_star <- scale(X, center = T, scale = F)
   X_star <- scale(X_star, center = F, scale = apply(X_star, 2, function (x) { sqrt(sum(x^2) / nrow(X_star)) }))
 
-  stopifnot(abs(t(X_star) %*% rep(1, nrow(X_star))) <= 1e-15)
-  stopifnot(abs(diag((t(X_star) %*% X_star) / nrow(X)) - 1) <= 1e-15)
+  stopifnot(abs(t(X_star) %*% rep(1, nrow(X_star))) <= sqrt(.Machine$double.eps))
+  stopifnot(abs(diag((t(X_star) %*% X_star) / nrow(X)) - 1) <= sqrt(.Machine$double.eps))
 
   return(X_star)
 }
@@ -25,8 +25,8 @@ principals <- function (X, r = Inf) {
   D <- head(eigens$values, min(r, length(eigens$values)))
   Z <- X_star %*% A
 
-  stopifnot(abs(t(A) %*% A - diag(1, nrow = ncol(A), ncol = ncol(A))) <= 1e-15)
-  stopifnot(abs(((t(X_star) %*% X_star) / nrow(X_star)) %*% A - A %*% diag(D)) <= 1e-15)
+  stopifnot(abs(t(A) %*% A - diag(1, nrow = ncol(A), ncol = ncol(A))) <= sqrt(.Machine$double.eps))
+  stopifnot(abs(((t(X_star) %*% X_star) / nrow(X_star)) %*% A - A %*% diag(D)) <= sqrt(.Machine$double.eps))
 
   # Optimal scaling
   X_hat <- Z %*% t(A)
