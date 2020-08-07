@@ -17,8 +17,28 @@ standardise <- function (X) {
 principals <- function (X, r = Inf) {
   # TODO: encode categorical and ordinal features
 
-  X_star <- standardise(X)
+  X_star <- integer(nrow(X) * ncol(X))
+  X_star_new <- standardise(X)
+  D <- eigen((t(X_star_new) %*% X_star_new) / nrow(X_star_new), only.values = T)$values
 
+  iterations <- 0
+  while (! all(abs(X_star_new - X_star) <= sqrt(.Machine$double.eps))) {
+    new_iteration <- principals_step(X_star_new, r)
+    if (is.null(new_iteration)) {
+      return(NULL)  # Propagate errors
+    }
+
+    D <- new_iteration$eig
+    X_star <- X_star_new
+    X_star_new <- new_iteration$X_star
+    iterations <- iterations + 1
+  }
+
+  return(list("X_star" = X_star, "eig" = D, "iterations" = iterations))
+}
+
+
+principals_step <- function (X_star, r) {
   # Model parameter estimation
   eigens <- eigen((t(X_star) %*% X_star) / nrow(X_star), only.values = F)
   A <- head(eigens$vectors, cbind(nrow(eigens$vectors), min(r, ncol(eigens$vectors))))
