@@ -40,7 +40,7 @@ principals <- function (X, r = Inf) {
 
 principals_step <- function (X_star, r) {
   # Model parameter estimation
-  eigens <- eigen((t(X_star) %*% X_star) / nrow(X_star), only.values = F)
+  eigens <- RSpectra::eigs((t(X_star) %*% X_star) / nrow(X_star), min(r, ncol(X_star)), which = "LM")
   A <- head(eigens$vectors, cbind(nrow(eigens$vectors), min(r, ncol(eigens$vectors))))
   D <- head(eigens$values, min(r, length(eigens$values)))
   Z <- X_star %*% A
