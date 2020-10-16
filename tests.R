@@ -3,9 +3,13 @@
 # Created by: Alessandro Serpi - 1647244
 # Created on: 2020-07-01
 
-source("mixed_datasets.R")
-data <- caravan()
+library(ggfortify)
 
+source("dim_red_utils.R")
+source("mixed_datasets.R")
+
+data <- gironde()
+data_name <- "gironde"
 
 is.notfactor <- function (x) { ! is.factor(x) }
 
@@ -77,7 +81,24 @@ pca_one_hot_eig <- pca_one_hot_test(data = data)
 print("PCA with one-hot encoding")
 print(pca_one_hot_eig)
 
-print("Are ade4 and PCAmix equivalent?")
-all.equal(ade4_eig, pcamix_eig)
-
 # TODO: PCoA with gower distances
+
+ADE4 <- ade4_eig[, "Proportion"]
+FAMD <- famd_eig[, "Proportion"]
+PCAmix <- pcamix_eig[, "Proportion"]
+PCA_1hot <- pca_one_hot_eig[, "Proportion"]
+
+max_dim <- max(length(FAMD), length(PCAmix), length(PCA_1hot))
+length(ADE4) <- max_dim
+length(FAMD) <- max_dim
+length(PCAmix) <- max_dim
+length(PCA_1hot) <- max_dim
+Eigenvalues <- 1:max_dim
+
+p <- ggplot2::ggplot(mapping = ggplot2::aes(x = Eigenvalues)) +
+  ggplot2::geom_line(mapping = ggplot2::aes(y = FAMD / 100), color = "darkred") +
+  ggplot2::geom_line(mapping = ggplot2::aes(y = PCAmix / 100), color = "steelblue") +
+  ggplot2::geom_line(mapping = ggplot2::aes(y = PCA_1hot / 100), color = "forestgreen") +
+  ggplot2::labs(y = "Explained variance", title = "Percentage of variance explained by each eigenvalue") +
+  ggplot2::scale_y_continuous(labels = scales::percent)
+autoplotly::autoplotly(p)
