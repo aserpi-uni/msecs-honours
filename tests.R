@@ -11,12 +11,7 @@ is.notfactor <- function (x) { ! is.factor(x) }
 
 
 ade4_test <- function (data, ndims) {
-  result <- ade4::dudi.hillsmith(
-    df = data,
-    row.w = rep(1, nrow(data))/nrow(data),
-    scannf = FALSE,
-    nf = ndims
-  )
+  result <- ade4_wrapper(data, ndims)
 
   eig <- matrix(result$eig, dimnames = list(seq_len(length(result$eig)), "Eigenvalue"))
 
@@ -29,16 +24,7 @@ ade4_test <- function (data, ndims) {
 
 
 famd_test <- function (data, ndims) {
-  result <- FactoMineR::FAMD(
-    base = data,
-    ncp = ndims,
-    graph = FALSE,
-    sup.var = NULL,
-    ind.sup = NULL,
-    axes = c(1,2),
-    row.w = NULL,
-    tab.disj = NULL
-  )
+  result <- famd_wrapper(data, ndims)
 
   eig <- result$eig
   colnames(eig)[1:3] <- c("Eigenvalue", "Proportion", "Cumulative")
@@ -48,9 +34,8 @@ famd_test <- function (data, ndims) {
 }
 
 
-pca_one_hot_test <- function(data, ndims) {
-  one_hot_data <- mltools::one_hot(data.table::data.table(data))
-  result <- prcomp(one_hot_data)
+pca_one_hot_test <- function (data) {
+  result <- pca_one_hot_wrapper(pca_one_hot_pre(data))
 
   eig <- matrix(result$sdev, dimnames = list(seq_len(length(result$sdev)), "Eigenvalue"))
 
@@ -62,18 +47,8 @@ pca_one_hot_test <- function(data, ndims) {
 }
 
 
-pcamix_test <- function(data, ndims) {
-  split_data <- PCAmixdata::splitmix(data)
-
-  result <- PCAmixdata::PCAmix(
-    X.quanti = split_data$X.quanti,
-    X.quali = split_data$X.quali,
-    ndim = ndims,
-    rename.level = TRUE,
-    weight.col.quanti = NULL,
-    weight.col.quali = NULL,
-    graph = FALSE
-  )
+pcamix_test <- function (data, ndims) {
+  result <- pcamix_wrapper(pcamix_pre(data), ndims)
 
   eig <- result$eig
   row.names(eig) <- seq_len(nrow(eig))
@@ -98,7 +73,7 @@ pcamix_eig <- pcamix_test(data = data, ndims = n_dims)
 print("PCAmix")
 print(pcamix_eig)
 
-pca_one_hot_eig <- pca_one_hot_test(data = data, ndims = n_dims)
+pca_one_hot_eig <- pca_one_hot_test(data = data)
 print("PCA with one-hot encoding")
 print(pca_one_hot_eig)
 
