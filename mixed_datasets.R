@@ -10,7 +10,12 @@ caravan <- function () {
 
 
 gironde <- function () {
-  return(data("gironde", package = "PCAmix"))
+  data("gironde", package = "PCAmixdata")
+  gironde <- cbind(
+    gironde$employment, gironde$environment, gironde$housing, gironde$services
+  )
+
+  gironde[complete.cases(gironde), ]
 }
 
 
