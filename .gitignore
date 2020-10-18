@@ -49,6 +49,7 @@ docs/
 
 # Project
 .idea/
+venv/
 *.iml
 
 # CMake
@@ -59,6 +60,7 @@ cmake-build-*/
 
 # IntelliJ
 out/
+plots/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
