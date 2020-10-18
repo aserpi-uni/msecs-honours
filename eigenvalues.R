@@ -10,8 +10,7 @@ source("mixed_datasets.R")
 
 data <- gironde()
 data_name <- "gironde"
-
-is.notfactor <- function (x) { ! is.factor(x) }
+n_dims <- Inf
 
 
 ade4_test <- function (data, ndims) {
@@ -59,11 +58,6 @@ pcamix_test <- function (data, ndims) {
 
   return(eig)
 }
-
-
-num_col <- unlist(lapply(data, is.notfactor))
-data[num_col] <- unlist(lapply(data[num_col], scale))
-n_dims <- Inf
 
 ade4_eig <- ade4_test(data = data, ndims = n_dims)
 print("ade4")
