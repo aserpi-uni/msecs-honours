@@ -8,7 +8,6 @@ library(ggfortify)
 source("dim_red_utils.R")
 source("mixed_datasets.R")
 
-data <- gironde()
 data_name <- "gironde"
 n_dims <- Inf
 
@@ -58,6 +57,9 @@ pcamix_test <- function (data, ndims) {
 
   return(eig)
 }
+
+
+data <- do.call(data_name, list())
 
 ade4_eig <- ade4_test(data = data, ndims = n_dims)
 print("ade4")
