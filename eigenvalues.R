@@ -99,9 +99,4 @@ p <- ggplot2::ggplot(mapping = ggplot2::aes(x = Eigenvalues)) +
   ggplot2::scale_y_continuous(labels = scales::percent)
 autoplotly::autoplotly(p)
 
-to_be_saved <- cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot)
-write.table(
-  to_be_saved, file = stringr::str_interp("out/${data_name}_eig.dat"),
-  append = FALSE, quote = FALSE, sep = " ", eol = "\n", na = "nan", dec = ".",
-  row.names = FALSE, col.names = FALSE
-)
+write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot), data_name, "eig_2")

@@ -1,3 +1,6 @@
+library("stringr")
+
+
 ade4_wrapper <- function (data, ndims) {
   ade4::dudi.hillsmith(
     df = data,
@@ -38,5 +41,13 @@ pcamix_wrapper <- function (preprocessed_data, ndims) {
     weight.col.quanti = NULL,
     weight.col.quali = NULL,
     graph = FALSE
+  )
+}
+
+write_result <- function (data, data_name, type) {
+  write.table(
+    data, file = str_interp("out/${data_name}_${type}.dat"),
+    append = FALSE, quote = FALSE, sep = " ", eol = "\n", na = "nan", dec = ".",
+    row.names = FALSE, col.names = FALSE
   )
 }
