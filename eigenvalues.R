@@ -3,7 +3,9 @@
 # Created by: Alessandro Serpi - 1647244
 # Created on: 2020-07-01
 
-library(ggfortify)
+library("tidyverse")
+library("ggfortify")
+library("autoplotly")
 
 source("dim_red_utils.R")
 source("mixed_datasets.R")
@@ -91,12 +93,12 @@ length(PCAmix) <- max_dim
 length(PCA_1hot) <- max_dim
 Eigenvalues <- 1:max_dim
 
-p <- ggplot2::ggplot(mapping = ggplot2::aes(x = Eigenvalues)) +
-  ggplot2::geom_line(mapping = ggplot2::aes(y = FAMD / 100), color = "darkred") +
-  ggplot2::geom_line(mapping = ggplot2::aes(y = PCAmix / 100), color = "steelblue") +
-  ggplot2::geom_line(mapping = ggplot2::aes(y = PCA_1hot / 100), color = "forestgreen") +
-  ggplot2::labs(y = "Explained variance", title = "Percentage of variance explained by each eigenvalue") +
-  ggplot2::scale_y_continuous(labels = scales::percent)
+p <- ggplot(mapping = aes(x = Eigenvalues)) +
+  geom_line(mapping = aes(y = FAMD / 100), color = "darkred") +
+  geom_line(mapping = aes(y = PCAmix / 100), color = "steelblue") +
+  geom_line(mapping = aes(y = PCA_1hot / 100), color = "forestgreen") +
+  labs(y = "Explained variance", title = "Percentage of variance explained by each eigenvalue") +
+  scale_y_continuous(labels = scales::percent)
 autoplotly::autoplotly(p)
 
 write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot), data_name, "eig_2")
