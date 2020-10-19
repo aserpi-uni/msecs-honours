@@ -41,7 +41,8 @@ famd_test <- function (data, ndims) {
 pca_one_hot_test <- function (data) {
   result <- pca_one_hot_wrapper(pca_one_hot_pre(data))
 
-  eig <- matrix(result$sdev, dimnames = list(seq_len(length(result$sdev)), "Eigenvalue"))
+  positive_eig <- result$sdev[which(result$sdev > sqrt(.Machine$double.eps))]
+  eig <- matrix(positive_eig, dimnames = list(seq_len(length(positive_eig)), "Eigenvalue"))
 
   total_variance <- sum(eig)
   eig <- cbind(eig, Proportion = eig[, "Eigenvalue"] * 100 / total_variance)
