@@ -44,6 +44,12 @@ pcamix_wrapper <- function (preprocessed_data, ndims) {
   )
 }
 
+pcoa_wrapper <- function (data) {
+  dissim <- StatMatch::gower.dist(data)
+  ape::pcoa(dissim, correction = "none")
+}
+
+
 write_result <- function (data, data_name, type) {
   write.table(
     data, file = str_interp("out/${data_name}_${type}.dat"),

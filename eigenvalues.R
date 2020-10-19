@@ -61,6 +61,19 @@ pcamix_test <- function (data, ndims) {
   return(eig)
 }
 
+pcoa_test <- function (data) {
+  result <- pcoa_wrapper(data)
+
+  positive_eig <- result$values$Eigenvalues[which(result$values$Eigenvalues > sqrt(.Machine$double.eps))]
+  eig <- matrix(positive_eig, dimnames = list(seq_len(length(positive_eig)), "Eigenvalue"))
+
+  total_variance <- sum(eig)
+  eig <- cbind(eig, Proportion = eig[, "Eigenvalue"] * 100 / total_variance)
+  eig <- cbind(eig, Cumulative = cumsum(eig[, "Proportion"]))
+
+  return(eig)
+}
+
 
 data <- do.call(data_name, list())
 
@@ -80,26 +93,31 @@ pca_one_hot_eig <- pca_one_hot_test(data = data)
 print("PCA with one-hot encoding")
 print(pca_one_hot_eig)
 
-# TODO: PCoA with gower distances
+pcoa_eig <- pcoa_test(data = data)
+print("PCoA with Gower's distance")
+print(pcoa_eig)
 
 ADE4 <- ade4_eig[, "Proportion"]
 FAMD <- famd_eig[, "Proportion"]
 PCAmix <- pcamix_eig[, "Proportion"]
 PCA_1hot <- pca_one_hot_eig[, "Proportion"]
+PCoA <- pcoa_eig[, "Proportion"]
 
 max_dim <- max(length(FAMD), length(PCAmix), length(PCA_1hot))
 length(ADE4) <- max_dim
 length(FAMD) <- max_dim
 length(PCAmix) <- max_dim
 length(PCA_1hot) <- max_dim
+length(PCoA) <- max_dim
 Eigenvalues <- 1:max_dim
 
 p <- ggplot(mapping = aes(x = Eigenvalues)) +
   geom_line(mapping = aes(y = FAMD / 100), color = "darkred") +
   geom_line(mapping = aes(y = PCAmix / 100), color = "steelblue") +
   geom_line(mapping = aes(y = PCA_1hot / 100), color = "forestgreen") +
+  geom_line(mapping = aes(y = PCoA / 100), color = "yellow") +
   labs(y = "Explained variance", title = "Percentage of variance explained by each eigenvalue") +
   scale_y_continuous(labels = scales::percent)
 autoplotly::autoplotly(p)
 
-write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot), data_name, "eig_2")
+write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot, PCoA), data_name, "eig_2")
