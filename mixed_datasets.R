@@ -7,12 +7,15 @@ scale_data <- function (data) {
 }
 
 
-caravan <- function () {
+caravan <- function (ordinal = FALSE) {
   caravan <- ISLR::Caravan
+
   caravan$MOSTYPE <- factor(caravan$MOSTYPE)
   caravan$MOSHOOFD <- factor(caravan$MOSHOOFD)
-  caravan$MGODRK <- factor(caravan$MGODRK)
-  caravan$PWAPART <- factor(caravan$PWAPART)
+  caravan$Purchase <- factor(caravan$Purchase)
+
+  caravan$MGEMLEEF <- factor(caravan$MGEMLEEF, levels = 1:6, ordered = ordinal)
+  caravan[6:64] <- lapply(caravan[6:64], factor, levels = 0:9, ordered = ordinal)
 
   scale_data(caravan)
 }
@@ -26,9 +29,9 @@ gironde <- function () {
   scale_data(gironde[complete.cases(gironde), ])
 }
 
-wine <- function () {
+wine <- function (ordinal = FALSE) {
   wine <- read.csv("data/winequality-red.csv", sep=";")
-  wine$quality <- factor(wine$quality)
+  wine$quality <- factor(wine$quality, ordered = ordinal)
 
   scale_data(wine)
 }
