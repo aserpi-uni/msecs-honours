@@ -29,9 +29,17 @@ gironde <- function () {
   scale_data(gironde[complete.cases(gironde), ])
 }
 
-wine <- function (ordinal = FALSE) {
-  wine <- read.csv("data/winequality-red.csv", sep=";")
+wine <- function (type, ordinal = FALSE) {
+  wine <- read.csv(stringr::str_interp("data/winequality-${type}.csv"), sep=";")
   wine$quality <- factor(wine$quality, ordered = ordinal)
 
   scale_data(wine)
+}
+
+wine.red <- function (ordinal = FALSE) {
+  wine("red", ordinal)
+}
+
+wine.white <- function (ordinal = FALSE) {
+  wine("white", ordinal)
 }
