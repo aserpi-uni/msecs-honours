@@ -12,16 +12,23 @@ source("dim_red_utils.R")
 source("mixed_datasets.R")
 
 
-caravan <- caravan()
+data_name <- "caravan"
 n_dims <- Inf
+
+main_dataset <- do.call(data_name, list())
 all_times <- data.frame(matrix(ncol = 3, nrow = 0))
 colnames(all_times) <- c("algorithm", "samples", "exec_time")
 
 all_results <- press(
-  samples = floor(nrow(caravan)/9) * 1:9,
+  samples = floor(nrow(main_dataset)/9) * 1:9,
   rep = 1:20,
   {
-    data <- caravan[sample(5822, rep),]
+    data <- main_dataset[sample(nrow(main_dataset), samples),]
+    data <- data[data %>%  # Select only columns which do not contain all identical cells
+                   summarise_all(~n_distinct(.)) %>%
+                   select_if(. != 1) %>%
+                   colnames()
+    ]
     result <- mark(
       ade4 = ade4_wrapper(data, n_dims),
       FAMD = famd_wrapper(data, n_dims),
@@ -46,14 +53,15 @@ all_results <- press(
     )
 
     all_times <- rbind(all_times, cbind(samples, result_times))
-    write_result(result_times, "caravan", str_interp("${samples}_${rep}_times"))
+    write_result(result_times, data_name, str_interp("${samples}_${rep}_times"))
 
+    save(result, str_interp("out/results_${data_name}_${samples}_${rep}.Rda"))
     result
   }
 )
 
 save(all_results, "out/all_results.Rda")
-write_result(all_times, "caravan", "times")
+write_result(all_times, data_name, "times")
 
 p <- ggplot(all_times, aes(x = algorithm, y = exec_time, fill = samples)) +
   geom_violin(trim = TRUE) +
