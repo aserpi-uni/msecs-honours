@@ -19,7 +19,7 @@ colnames(all_times) <- c("algorithm", "samples", "exec_time")
 
 all_results <- press(
   samples = floor(nrow(caravan)/9) * 1:9,
-  rep = 1:100,
+  rep = 1:20,
   {
     data <- caravan[sample(5822, rep),]
     result <- mark(
@@ -27,7 +27,7 @@ all_results <- press(
       FAMD = famd_wrapper(data, n_dims),
       PCAmixdata = pcamix_wrapper(pcamix_pre(data), n_dims),
       PCA_1hot = pca_one_hot_wrapper(pca_one_hot_pre(data)),
-      iterations = 100,
+      iterations = 15,
       check = FALSE,
       filter_gc = TRUE,
       relative = FALSE,
