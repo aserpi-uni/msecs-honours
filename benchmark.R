@@ -16,33 +16,50 @@ data_name <- "caravan"
 n_dims <- Inf
 
 main_dataset <- do.call(data_name, list())
-all_times <- data.frame(matrix(ncol = 3, nrow = 0))
-colnames(all_times) <- c("algorithm", "samples", "exec_time")
+reps <- 1:20
+samples <- floor(nrow(main_dataset)/9) * 1:9
+source_filename <- "out/results_${data_name}_${sample}_${rep}.Rda"
 
-all_results <- press(
-  samples = floor(nrow(main_dataset)/9) * 1:9,
-  rep = 1:20,
-  {
-    data <- main_dataset[sample(nrow(main_dataset), samples),]
+message("Repetition\t\tSamples\t\t\tTime")
+for (rep in reps) {
+  for (sample in samples) {
+    message(rep, "\t\t\t\t", sample, "\t\t\t", Sys.time())
+    data <- main_dataset[sample(nrow(main_dataset), sample),]
     data <- data[data %>%  # Select only columns which do not contain all identical cells
                    summarise_all(~n_distinct(.)) %>%
                    select_if(. != 1) %>%
                    colnames()
     ]
-    result <- mark(
+
+    results <- mark(
       ade4 = ade4_wrapper(data, n_dims),
       FAMD = famd_wrapper(data, n_dims),
       PCAmixdata = pcamix_wrapper(pcamix_pre(data), n_dims),
       PCA_1hot = pca_one_hot_wrapper(pca_one_hot_pre(data)),
       iterations = 15,
       check = FALSE,
-      filter_gc = TRUE,
+      filter_gc = FALSE,
       relative = FALSE,
       time_unit = "ms"
     )
+    save(results, str_interp(source_filename))
+    autoplotly(results)
 
-    names <- attr(result$expression, "description")
-    result_times <- do.call(cbind, result$time)
+    # Remove old elements from memory
+    rm(data)
+    rm(results)
+    gc()
+  }
+}
+
+all_times <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(all_times) <- c("algorithm", "samples", "exec_time")
+for (rep in reps) {
+  for (sample in samples) {
+    data(str_interp(source_filename))
+
+    names <- attr(results$expression, "description")
+    result_times <- do.call(cbind, results$time)
     colnames(result_times) <- names
     result_times <- pivot_longer(
       data.frame(result_times),
@@ -52,16 +69,9 @@ all_results <- press(
       names_transform = list(algorithm = ~parse_factor(.x, levels = names))
     )
 
-    all_times <- rbind(all_times, cbind(samples, result_times))
-    write_result(result_times, data_name, str_interp("${samples}_${rep}_times"))
-
-    save(result, str_interp("out/results_${data_name}_${samples}_${rep}.Rda"))
-    result
+    all_times <- rbind(all_times, cbind(sample, result_times))
   }
-)
-
-save(all_results, "out/all_results.Rda")
-write_result(all_times, data_name, "times")
+}
 
 p <- ggplot(all_times, aes(x = algorithm, y = exec_time, fill = samples)) +
   geom_violin(trim = TRUE) +
