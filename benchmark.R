@@ -18,7 +18,7 @@ n_dims <- Inf
 main_dataset <- do.call(data_name, list())
 reps <- 1:20
 samples <- floor(nrow(main_dataset)/9) * 1:9
-source_filename <- "out/results_${data_name}_${sample}_${rep}.Rda"
+source_filename <- "out/results_${data_name}_${sample}_${rep}.rds"
 
 message("Repetition\t\tSamples\t\t\tTime")
 for (rep in reps) {
@@ -42,8 +42,8 @@ for (rep in reps) {
       relative = FALSE,
       time_unit = "ms"
     )
-    save(results, str_interp(source_filename))
-    autoplotly(results)
+    saveRDS(results, file = str_interp(source_filename))
+    autoplot(results)
 
     # Remove old elements from memory
     rm(data)
@@ -56,7 +56,7 @@ all_times <- data.frame(matrix(ncol = 3, nrow = 0))
 colnames(all_times) <- c("algorithm", "samples", "exec_time")
 for (rep in reps) {
   for (sample in samples) {
-    data(str_interp(source_filename))
+    results <- readRDS(file = str_interp(source_filename))
 
     names <- attr(results$expression, "description")
     result_times <- do.call(cbind, results$time)
@@ -73,6 +73,7 @@ for (rep in reps) {
   }
 }
 
+write_result(all_times, "caravan", "all_times")
 p <- ggplot(all_times, aes(x = algorithm, y = exec_time, fill = samples)) +
   geom_violin(trim = TRUE) +
   scale_fill_brewer(palette = "Dark2") +
