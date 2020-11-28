@@ -12,12 +12,10 @@ source("dim_red_utils.R")
 source("mixed_datasets.R")
 
 
-data_name <- "caravan"
-n_dims <- Inf
-
-main_dataset <- do.call(data_name, list())
-reps <- 1:20
-samples <- floor(nrow(main_dataset)/9) * 1:9
+bench_samples <- function(data_name, n_dims, n_samples, n_iter, n_reps) {
+  main_dataset <- do.call(data_name, list())
+  reps <- 1:n_reps
+  samples <- floor(nrow(main_dataset) / n_samples) * 1:n_samples
 source_filename <- "out/results_${data_name}_${sample}_${rep}.rds"
 
 message("Repetition\t\tSamples\t\t\tTime")
@@ -36,17 +34,16 @@ for (rep in reps) {
       FAMD = famd_wrapper(data, n_dims),
       PCAmixdata = pcamix_wrapper(pcamix_pre(data), n_dims),
       PCA_1hot = pca_one_hot_wrapper(pca_one_hot_pre(data)),
-      iterations = 15,
+        iterations = n_iter,
       check = FALSE,
       filter_gc = FALSE,
       relative = FALSE,
-      time_unit = "ms"
-    )
-    saveRDS(results, file = str_interp(source_filename))
-    autoplot(results)
+        time_unit = "ms"
+      )
+      saveRDS(results, file = str_interp(source_filename))
 
-    # Remove old elements from memory
-    rm(data)
+      # Remove old elements from memory
+      rm(data)
     rm(results)
     gc()
   }
@@ -80,3 +77,4 @@ p <- ggplot(all_times, aes(x = algorithm, y = exec_time, fill = samples)) +
   labs(title = "Execution times", x = "Algorithm", y = "Execution time [s]") +
   theme(legend.position = "none")
 autoplotly(p)
+}
