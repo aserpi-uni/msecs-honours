@@ -59,7 +59,6 @@ cmake-build-*/
 *.iws
 
 # IntelliJ
-out/
 plots/
 
 # mpeltonen/sbt-idea plugin

@@ -120,4 +120,4 @@ p <- ggplot(mapping = aes(x = Eigenvalues)) +
   scale_y_continuous(labels = scales::percent)
 autoplotly::autoplotly(p)
 
-write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot, PCoA), data_name, "eig_2")
+write_result(cbind(Eigenvalues, ADE4, FAMD, PCAmix, PCA_1hot, PCoA), data_name, "eig")
