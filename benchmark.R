@@ -12,6 +12,27 @@ source("dim_red_utils.R")
 source("mixed_datasets.R")
 
 
+extract_gc <- function(results, names, n_iter) {
+  result_gc <- NULL
+  for (r in 1:n_iter) {
+    for (a in seq_along(names)) {
+      i <- results$gc[[a]][r,]
+      if (i["level2"] > 0) {
+        result_gc <- rbind(result_gc, "2")
+      } else if (i["level1"] > 0) {
+        result_gc <- rbind(result_gc, "1")
+      } else if (i["level0"] > 0) {
+        result_gc <- rbind(result_gc, "0")
+      } else {
+        result_gc <- rbind(result_gc, "none")
+      }
+    }
+  }
+
+  result_gc
+}
+
+
 bench_samples <- function(data_name, n_dims, n_samples, n_iter, n_reps) {
   main_dataset <- do.call(data_name, list())
   reps <- 1:n_reps
@@ -46,14 +67,15 @@ for (rep in reps) {
       rm(data)
     rm(results)
     gc()
+    }
   }
-}
 
-all_times <- data.frame(matrix(ncol = 3, nrow = 0))
-colnames(all_times) <- c("algorithm", "samples", "exec_time")
-for (rep in reps) {
-  for (sample in samples) {
-    results <- readRDS(file = str_interp(source_filename))
+  message("Finalising...")
+  all_times <- data.frame(matrix(ncol = 4, nrow = 0))
+  colnames(all_times) <- c("samples", "algorithm", "exec_time", "gc")
+  for (rep in reps) {
+    for (sample in samples) {
+      results <- readRDS(file = str_interp(source_filename))
 
     names <- attr(results$expression, "description")
     result_times <- do.call(cbind, results$time)
@@ -66,7 +88,8 @@ for (rep in reps) {
       names_transform = list(algorithm = ~parse_factor(.x, levels = names))
     )
 
-    all_times <- rbind(all_times, cbind(sample, result_times))
+      result_gc <- extract_gc(results, names, n_iter)
+      all_times <- rbind(all_times, cbind(sample, result_times, result_gc))
   }
 }
 
