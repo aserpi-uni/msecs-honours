@@ -190,3 +190,8 @@ bench_samples <- function(data_name, n_dims, n_samples, n_iter, n_reps) {
     facet_wrap(vars(sample), ncol = 3)
   autoplotly(p)
 }
+
+
+# Uncomment to run
+# bench_features("caravan", Inf, 3, 15, 20)
+# bench_samples("caravan", Inf, 9, 15, 20)
