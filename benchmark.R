@@ -90,14 +90,13 @@ for (rep in reps) {
 
       result_gc <- extract_gc(results, names, n_iter)
       all_times <- rbind(all_times, cbind(sample, result_times, result_gc))
+    }
   }
-}
 
-write_result(all_times, "caravan", "all_times")
-p <- ggplot(all_times, aes(x = algorithm, y = exec_time, fill = samples)) +
-  geom_violin(trim = TRUE) +
-  scale_fill_brewer(palette = "Dark2") +
-  labs(title = "Execution times", x = "Algorithm", y = "Execution time [s]") +
-  theme(legend.position = "none")
+  all_times$sample <- as.integer(all_times$sample)
+  write_result(all_times, data_name, "samples_times")
+  p <- ggplot(all_times, aes(algorithm, exec_time, color = result_gc)) +
+    ggbeeswarm::geom_beeswarm() +
+    facet_wrap(vars(sample), ncol = 3)
 autoplotly(p)
 }
